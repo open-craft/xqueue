@@ -10,7 +10,8 @@ def get_logger_config(log_dir,
                       dev_env=False,
                       syslog_addr=None,
                       debug=False,
-                      local_loglevel='INFO'):
+                      local_loglevel='INFO',
+                      service_variant='xqueue'):
 
     """
 
@@ -32,13 +33,14 @@ def get_logger_config(log_dir,
         local_loglevel = 'INFO'
 
     hostname = platform.node().split(".")[0]
-    syslog_format = ("[%(name)s][env:{logging_env}] %(levelname)s "
+    syslog_format = ("[service_variant={service_variant}]"
+                     "[%(name)s][env:{logging_env}] %(levelname)s "
                      "[{hostname}  %(process)d] [%(filename)s:%(lineno)d] "
                      "- %(message)s").format(
+                        service_variant=service_variant,
                         logging_env=logging_env, hostname=hostname)
 
-    handlers = ['console', 'local'] if debug else ['console',
-                                'syslogger-remote', 'local']
+    handlers = ['console', 'local'] if debug else ['local']
 
     logger_config = {
         'version': 1,
@@ -66,26 +68,16 @@ def get_logger_config(log_dir,
             },
         },
         'loggers': {
-            'django': {
-                'handlers': handlers,
-                'propagate': True,
-                'level': 'INFO'
-            },
             '': {
                 'handlers': handlers,
                 'level': 'DEBUG',
                 'propagate': False
             },
-            'mitx': {
+            'pika': {
                 'handlers': handlers,
-                'level': 'DEBUG',
-                'propagate': False
-            },
-            'keyedcache': {
-                'handlers': handlers,
-                'level': 'DEBUG',
-                'propagate': False
-            },
+                'level': 'WARNING',
+                'propogate': True,
+            }
         }
     }
 
