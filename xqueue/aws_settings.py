@@ -1,6 +1,7 @@
 from settings import *
 import json
 from logsettings import get_logger_config
+from django.conf import global_settings
 
 # Allow to specify a prefix for env/auth configuration files
 SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', '')
@@ -68,3 +69,8 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_STORAGE_BUCKET_NAME = S3_BUCKET
 AWS_LOCATION = S3_PATH_PREFIX
 AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
+
+# Use session engine settings from env
+SESSION_ENGINE = ENV_TOKENS.get('SESSION_ENGINE', global_settings.SESSION_ENGINE)
+# Use a custom cache setting from env; useful if, for example, the session engine uses cache and requires Memcached
+CACHES = ENV_TOKENS.get('CACHES', global_settings.CACHES)
